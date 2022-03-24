@@ -2,10 +2,10 @@ import { Button, Card, Container, Grid, Image, Text } from "@nextui-org/react"
 import confetti from "canvas-confetti"
 import { GetStaticProps, NextPage, GetStaticPaths } from "next"
 import { useState } from "react"
-import { pokeApi } from "../../../api"
-import { Layout } from "../../../components/layouts"
-import { Pokemon, PokemonListReponse, SmallPokemon } from "../../../interfaces"
-import { getPokemonInfo, localFavorites } from "../../../utils"
+import { pokeApi } from "../../api"
+import { Layout } from "../../components/layouts"
+import { Pokemon, PokemonListReponse, SmallPokemon } from "../../interfaces"
+import { getPokemonInfo, localFavorites } from "../../utils"
 
 interface Props{
   pokemon: Pokemon
@@ -97,14 +97,21 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
     paths: result.map(name=>({
       params:{name}
     })),
-    fallback: false
+    fallback: 'blocking'
   }
 }
 
 export const getStaticProps: GetStaticProps = async ({params}) => {
   const {name} = params as {name: string}  
   const pokemon = await getPokemonInfo(name)
-  
+  if(!pokemon){
+    return {
+      redirect:{
+        destination: '/',
+        permanent:false
+      }
+    }
+  }
   return {
     props: {
       pokemon
